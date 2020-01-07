@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+
+    <div class="container">
+        <div class="py-5 text-center">
+            <h2>WebChat</h2>
+            <p class="lead">Enter your name and start correspondence</p>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <h3>Message form</h3>
+                <form id="messForm">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name" placeholder="Enter your name" class="form-control">
+                    <br>
+                    <label for="message">Message</label>
+                    <textarea name="message" id="message" class="form-control" placeholder="Enter your message"></textarea>
+                    <br>
+                    <input type="submit" value="Submit" class="btn btn-success">
+                </form>
+            </div>
+            <div class="col-6">
+                <h3>Messages</h3>
+                <div id="all_mess"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        $(function() {
+
+            const random = Math.floor(Math.random() * (6 - 1)) + 1;
+            const alertClass = [ 'secondary', 'danger', 'success', 'warning', 'info', 'light' ];
+
+            const socket = io.connect();
+
+            const $form = $("#messForm");
+            const $name = $("#name");
+            const $message = $("#message");
+            const $all_messages = $("#all_mess");
+
+            $form.submit(function(event) {
+                event.preventDefault();
+                socket.emit('send message', {mess: $message.val(), name: $name.val(), className: alertClass[random]});
+                $message.val('');
+            });
+
+            socket.on('add message', function(data) {
+                $all_messages.append("<div class='alert alert-" + data.className + "'><b>" + data.name + "</b>: " + data.mess + "</div>");
+            });
+
+        });
+    </script>
+
+</body>
+</html>
